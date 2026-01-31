@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Conversion Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-color: #4a6de5;
+            --primary-dark: #3a5bd9;
+            --secondary-color: #f8f9fa;
+            --text-color: #333;
+            --text-light: #666;
+            --border-color: #ddd;
+            --card-bg: #ffffff;
+            --body-bg: #f0f2f5;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        .dark-mode {
+            --primary-color: #6d8aec;
+            --primary-dark: #5a78e0;
+            --secondary-color: #2d3748;
+            --text-color: #f7fafc;
+            --text-light: #cbd5e0;
+            --border-color: #4a5568;
+            --card-bg: #2d3748;
+            --body-bg: #1a202c;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        body {
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            transition: var(--transition);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto 20px;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            z-index: 100;
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(30deg);
+        }
+
+        .calculator-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin-bottom: 30px;
+            transition: var(--transition);
+        }
+
+        .converter-form {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: end;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .converter-form {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+            }
+            
+            .converter-form .form-group:first-child {
+                grid-column: 1;
+                grid-row: 1;
+            }
+            
+            .converter-form .swap-button {
+                grid-column: 1;
+                grid-row: 2;
+                justify-self: center;
+                margin: 10px 0;
+            }
+            
+            .converter-form .form-group:last-child {
+                grid-column: 1;
+                grid-row: 3;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .label-icon {
+            margin-right: 8px;
+            color: var(--primary-color);
+        }
+
+        input, select {
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 1rem;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 109, 229, 0.1);
+        }
+
+        .swap-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            align-self: center;
+            margin-bottom: 8px;
+        }
+
+        .swap-button:hover {
+            background-color: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        .dpi-section {
+            background-color: var(--secondary-color);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .dpi-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+
+        .dpi-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .dpi-presets {
+            display: flex;
+            gap: 10px;
+        }
+
+        .dpi-preset {
+            padding: 8px 15px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .dpi-preset:hover {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .dpi-preset.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .results {
+            background-color: var(--secondary-color);
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            border-top: 4px solid var(--primary-color);
+        }
+
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 10px 0;
+        }
+
+        .result-text {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 15px;
+        }
+
+        .precision-control {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .precision-control label {
+            margin-bottom: 0;
+        }
+
+        .precision-control input {
+            width: 80px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .unit-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .unit-card {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .unit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .unit-icon {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            width: 100%;
+        }
+
+        .error-message {
+            color: var(--error-color);
+            margin-top: 5px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .error-icon {
+            margin-right: 5px;
+        }
+
+        .success-message {
+            color: var(--success-color);
+            margin-top: 5px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .success-icon {
+            margin-right: 5px;
+        }
+
+        .conversion-details {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-top: 10px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-ruler-combined"></i> Unit Conversion Calculator</h1>
+            <p class="subtitle">Convert between feet, inches, millimeters, centimeters, and pixels with precision. Perfect for design, engineering, and development workflows.</p>
+        </header>
+
+        <div class="theme-toggle" id="themeToggle">
+            <i class="fas fa-moon" id="themeIcon"></i>
+        </div>
+
+        <main class="calculator-card">
+            <div class="converter-form">
+                <div class="form-group">
+                    <label for="fromValue"><i class="fas fa-pen label-icon"></i> Value to Convert</label>
+                    <input type="number" id="fromValue" placeholder="Enter a number" value="1" step="any">
+                    <div class="error-message" id="valueError" style="display: none;">
+                        <i class="fas fa-exclamation-circle error-icon"></i> Please enter a valid number
+                    </div>
+                </div>
+
+                <button class="swap-button" id="swapButton" aria-label="Swap units">
+                    <i class="fas fa-exchange-alt"></i>
+                </button>
+
+                <div class="form-group">
+                    <label for="toValue"><i class="fas fa-calculator label-icon"></i> Converted Result</label>
+                    <input type="text" id="toValue" readonly>
+                    <div class="success-message" id="resultStatus">
+                        <i class="fas fa-check-circle success-icon"></i> Ready for conversion
+                    </div>
+                </div>
+            </div>
+
+            <div class="converter-form">
+                <div class="form-group">
+                    <label for="fromUnit"><i class="fas fa-long-arrow-alt-right label-icon"></i> From Unit</label>
+                    <select id="fromUnit">
+                        <option value="ft">Feet (ft)</option>
+                        <option value="in">Inches (in)</option>
+                        <option value="mm">Millimeters (mm)</option>
+                        <option value="cm">Centimeters (cm)</option>
+                        <option value="px">Pixels (px)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="toUnit"><i class="fas fa-long-arrow-alt-left label-icon"></i> To Unit</label>
+                    <select id="toUnit">
+                        <option value="px">Pixels (px)</option>
+                        <option value="ft">Feet (ft)</option>
+                        <option value="in">Inches (in)</option>
+                        <option value="mm">Millimeters (mm)</option>
+                        <option value="cm">Centimeters (cm)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="dpi-section" id="dpiSection">
+                <div class="dpi-title">
+                    <i class="fas fa-tachometer-alt label-icon"></i>
+                    <h3>DPI Settings (Pixels Per Inch)</h3>
+                </div>
+                <div class="dpi-controls">
+                    <div class="form-group" style="flex-grow: 1;">
+                        <label for="dpiValue">Custom DPI Value</label>
+                        <input type="number" id="dpiValue" min="1" max="1000" value="96">
+                    </div>
+                    
+                    <div>
+                        <label>DPI Presets</label>
+                        <div class="dpi-presets">
+                            <div class="dpi-preset active" data-dpi="72">72 DPI</div>
+                            <div class="dpi-preset" data-dpi="96">96 DPI</div>
+                            <div class="dpi-preset" data-dpi="144">144 DPI</div>
+                            <div class="dpi-preset" data-dpi="300">300 DPI</div>
+                        </div>
+                    </div>
+                </div>
+                <p class="conversion-details">DPI (Dots Per Inch) affects pixel conversions. 96 DPI is standard for most screens.</p>
+            </div>
+
+            <div class="results">
+                <h2><i class="fas fa-ruler label-icon"></i> Conversion Result</h2>
+                <div class="result-value" id="resultValue">96</div>
+                <p class="result-text" id="resultText">1 ft = 96 px at 96 DPI</p>
+                
+                <div class="precision-control">
+                    <label for="precision"><i class="fas fa-sliders-h label-icon"></i> Decimal Precision</label>
+                    <input type="number" id="precision" min="0" max="10" value="2">
+                </div>
+            </div>
+        </main>
+
+        <div class="unit-info">
+            <div class="unit-card">
+                <div class="unit-icon"><i class="fas fa-ruler-vertical"></i></div>
+                <h3>Feet (ft)</h3>
+                <p>1 ft = 12 in = 304.8 mm</p>
+            </div>
+            <div class="unit-card">
+                <div class="unit-icon"><i class="fas fa-ruler"></i></div>
+                <h3>Inches (in)</h3>
+                <p>1 in = 25.4 mm = 96 px (at 96 DPI)</p>
+            </div>
+            <div class="unit-card">
+                <div class="unit-icon"><i class="fas fa-ruler-horizontal"></i></div>
+                <h3>Millimeters (mm)</h3>
+                <p>1 mm = 0.1 cm = 0.03937 in</p>
+            </div>
+            <div class="unit-card">
+                <div class="unit-icon"><i class="fas fa-square"></i></div>
+                <h3>Pixels (px)</h3>
+                <p>px = inches × DPI (Dots Per Inch)</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>Unit Conversion Calculator &copy; 2023 | Built with vanilla HTML, CSS & JavaScript</p>
+            <p>Conversion formulas: 1 ft = 12 in, 1 in = 25.4 mm, pixels = inches × DPI</p>
+        </footer>
+    </div>
+
+    <script>
+        // Conversion Calculator - Modular and Extensible
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const fromValueInput = document.getElementById('fromValue');
+            const toValueInput = document.getElementById('toValue');
+            const fromUnitSelect = document.getElementById('fromUnit');
+            const toUnitSelect = document.getElementById('toUnit');
+            const dpiValueInput = document.getElementById('dpiValue');
+            const dpiPresets = document.querySelectorAll('.dpi-preset');
+            const swapButton = document.getElementById('swapButton');
+            const precisionInput = document.getElementById('precision');
+            const dpiSection = document.getElementById('dpiSection');
+            const resultValue = document.getElementById('resultValue');
+            const resultText = document.getElementById('resultText');
+            const valueError = document.getElementById('valueError');
+            const resultStatus = document.getElementById('resultStatus');
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = document.getElementById('themeIcon');
+
+            // Unit conversion factors relative to inches (base unit)
+            const unitToInch = {
+                'ft': 12,      // 1 foot = 12 inches
+                'in': 1,       // 1 inch = 1 inch (base unit)
+                'mm': 0.0393701, // 1 mm = 0.0393701 inches
+                'cm': 0.393701,  // 1 cm = 0.393701 inches
+                'px': null      // Special case: depends on DPI
+            };
+
+            // Unit labels for display
+            const unitLabels = {
+                'ft': 'ft',
+                'in': 'in',
+                'mm': 'mm',
+                'cm': 'cm',
+                'px': 'px'
+            };
+
+            // Unit names for display
+            const unitNames = {
+                'ft': 'Feet',
+                'in': 'Inches',
+                'mm': 'Millimeters',
+                'cm': 'Centimeters',
+                'px': 'Pixels'
+            };
+
+            // Initialize
+            let currentDPI = 96;
+            let decimalPrecision = 2;
+            updateResult();
+            toggleDPISection();
+
+            // Event Listeners
+            fromValueInput.addEventListener('input', updateResult);
+            fromUnitSelect.addEventListener('change', function() {
+                updateResult();
+                toggleDPISection();
+            });
+            toUnitSelect.addEventListener('change', function() {
+                updateResult();
+                toggleDPISection();
+            });
+            dpiValueInput.addEventListener('input', function() {
+                currentDPI = parseFloat(dpiValueInput.value) || 96;
+                updateDPIButtons();
+                updateResult();
+            });
+            precisionInput.addEventListener('input', function() {
+                decimalPrecision = parseInt(precisionInput.value) || 2;
+                if (decimalPrecision < 0) decimalPrecision = 0;
+                if (decimalPrecision > 10) decimalPrecision = 10;
+                updateResult();
+            });
+            swapButton.addEventListener('click', swapUnits);
+            themeToggle.addEventListener('click', toggleTheme);
+
+            // DPI preset buttons
+            dpiPresets.forEach(preset => {
+                preset.addEventListener('click', function() {
+                    const dpi = parseInt(this.getAttribute('data-dpi'));
+                    dpiValueInput.value = dpi;
+                    currentDPI = dpi;
+                    updateDPIButtons();
+                    updateResult();
+                });
+            });
+
+            // Toggle DPI section visibility based on selected units
+            function toggleDPISection() {
+                const fromUnit = fromUnitSelect.value;
+                const toUnit = toUnitSelect.value;
+                
+                // Show DPI section if either unit is pixels
+                if (fromUnit === 'px' || toUnit === 'px') {
+                    dpiSection.style.display = 'block';
+                } else {
+                    dpiSection.style.display = 'none';
+                }
+            }
+
+            // Update active state of DPI preset buttons
+            function updateDPIButtons() {
+                dpiPresets.forEach(preset => {
+                    if (parseInt(preset.getAttribute('data-dpi')) === currentDPI) {
+                        preset.classList.add('active');
+                    } else {
+                        preset.classList.remove('active');
+                    }
+                });
+            }
+
+            // Swap "from" and "to" units
+            function swapUnits() {
+                const fromValue = fromValueInput.value;
+                const fromUnit = fromUnitSelect.value;
+                const toUnit = toUnitSelect.value;
+                
+                fromUnitSelect.value = toUnit;
+                toUnitSelect.value = fromUnit;
+                
+                // Only swap the values if we have a valid result
+                if (toValueInput.value && !isNaN(parseFloat(toValueInput.value))) {
+                    fromValueInput.value = parseFloat(toValueInput.value);
+                }
+                
+                toggleDPISection();
+                updateResult();
+            }
+
+            // Main conversion function
+            function convert(value, fromUnit, toUnit, dpi, precision) {
+                // Input validation
+                if (isNaN(value) || value === '') {
+                    return {error: 'Please enter a valid number'};
+                }
+                
+                const numValue = parseFloat(value);
+                
+                // Convert from source unit to inches (base unit)
+                let valueInInches;
+                
+                if (fromUnit === 'px') {
+                    // Convert pixels to inches using DPI
+                    valueInInches = numValue / dpi;
+                } else {
+                    // Convert other units to inches
+                    const toInchFactor = unitToInch[fromUnit];
+                    if (toInchFactor === null || toInchFactor === undefined) {
+                        return {error: `Unsupported unit: ${fromUnit}`};
+                    }
+                    valueInInches = numValue * toInchFactor;
+                }
+                
+                // Convert from inches to target unit
+                let result;
+                
+                if (toUnit === 'px') {
+                    // Convert inches to pixels using DPI
+                    result = valueInInches * dpi;
+                } else {
+                    // Convert inches to other units
+                    const fromInchFactor = unitToInch[toUnit];
+                    if (fromInchFactor === null || fromInchFactor === undefined) {
+                        return {error: `Unsupported unit: ${toUnit}`};
+                    }
+                    result = valueInInches / fromInchFactor;
+                }
+                
+                // Apply precision
+                const multiplier = Math.pow(10, precision);
+                result = Math.round(result * multiplier) / multiplier;
+                
+                return {value: result};
+            }
+
+            // Update the result display
+            function updateResult() {
+                const fromValue = fromValueInput.value;
+                const fromUnit = fromUnitSelect.value;
+                const toUnit = toUnitSelect.value;
+                
+                // Validate input
+                if (fromValue === '' || isNaN(parseFloat(fromValue))) {
+                    valueError.style.display = 'flex';
+                    resultStatus.style.display = 'none';
+                    toValueInput.value = '';
+                    resultValue.textContent = '--';
+                    resultText.textContent = 'Enter a value to convert';
+                    return;
+                }
+                
+                valueError.style.display = 'none';
+                resultStatus.style.display = 'flex';
+                
+                // Get current DPI
+                currentDPI = parseFloat(dpiValueInput.value) || 96;
+                
+                // Perform conversion
+                const conversion = convert(fromValue, fromUnit, toUnit, currentDPI, decimalPrecision);
+                
+                if (conversion.error) {
+                    toValueInput.value = '';
+                    resultValue.textContent = 'Error';
+                    resultText.textContent = conversion.error;
+                    resultStatus.innerHTML = `<i class="fas fa-exclamation-circle error-icon"></i> ${conversion.error}`;
+                } else {
+                    // Update display
+                    toValueInput.value = conversion.value;
+                    resultValue.textContent = conversion.value;
+                    
+                    // Create formatted result text
+                    const fromUnitName = unitNames[fromUnit];
+                    const toUnitName = unitNames[toUnit];
+                    const fromUnitLabel = unitLabels[fromUnit];
+                    const toUnitLabel = unitLabels[toUnit];
+                    
+                    let resultMessage = `${fromValue} ${fromUnitLabel} = ${conversion.value} ${toUnitLabel}`;
+                    
+                    // Add DPI info if pixels are involved
+                    if (fromUnit === 'px' || toUnit === 'px') {
+                        resultMessage += ` at ${currentDPI} DPI`;
+                    }
+                    
+                    resultText.textContent = resultMessage;
+                    resultStatus.innerHTML = `<i class="fas fa-check-circle success-icon"></i> Conversion successful`;
+                }
+            }
+
+            // Theme toggle functionality
+            function toggleTheme() {
+                document.body.classList.toggle('dark-mode');
+                
+                if (document.body.classList.contains('dark-mode')) {
+                    themeIcon.classList.remove('fa-moon');
+                    themeIcon.classList.add('fa-sun');
+                } else {
+                    themeIcon.classList.remove('fa-sun');
+                    themeIcon.classList.add('fa-moon');
+                }
+                
+                // Save theme preference to localStorage
+                const isDarkMode = document.body.classList.contains('dark-mode');
+                localStorage.setItem('darkMode', isDarkMode);
+            }
+
+            // Check for saved theme preference
+            const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (savedDarkMode) {
+                document.body.classList.add('dark-mode');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            }
+        });
+    </script>
+</body>
+</html>
